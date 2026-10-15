@@ -12,7 +12,7 @@ npm run dev                  # http://localhost:3000, l'API doit tourner sur API
 
 ## Fonctionnement
 
-- Le navigateur appelle `/api/*` sur le domaine du site ; `next.config.ts` réécrit ces appels vers l'API. Le cookie de session reste donc first-party.
+- Le navigateur appelle `/api/*` sur le domaine du site ; `src/proxy.ts` relaie ces appels vers l'API, avec l'adresse IP du visiteur signée par `PROXY_SECRET`. Le cookie de session reste donc first-party.
 - Les Server Components appellent l'API directement (`src/lib/server-api.ts`) en transmettant les cookies de la requête.
 - `cacheComponents` est actif : tout accès aux cookies, à `params`, à `searchParams` ou à l'API se fait dans un composant sous `<Suspense>`, sinon `next build` échoue.
 

@@ -19,7 +19,8 @@ export function AuthForm({ mode, next }: { mode: Mode; next: string }) {
 
   // Rechargement complet : l'en-tête et les pages serveur relisent la nouvelle session.
   const done = ({ profileComplete }: { profileComplete: boolean }) =>
-    window.location.assign(profileComplete ? next : `/profil?suite=${encodeURIComponent(next)}`);
+    // Sans page d'origine, un nouveau profil mène à « Mon annonce » (choix par défaut de /profil).
+    window.location.assign(profileComplete ? next : next === "/" ? "/profil" : `/profil?suite=${encodeURIComponent(next)}`);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
