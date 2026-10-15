@@ -64,7 +64,9 @@ async function Offers() {
               <p className="mt-1 text-sm text-muted">
                 {b.kind === "boost" && b.featuredHours
                   ? "Affichée en haut des résultats et sur l’accueil, et remontée en tête de liste."
-                  : "Votre annonce repasse en tête des annonces récentes."}
+                  : b.kind === "boost" && b.pinnedHours
+                    ? `Votre annonce reste en tête des annonces récentes pendant ${b.pinnedHours} h.`
+                    : "Votre annonce repasse en tête des annonces récentes."}
               </p>
               <p className="mt-4 text-2xl font-semibold">{formatXaf(b.priceXaf)}</p>
               <div className="mt-4">

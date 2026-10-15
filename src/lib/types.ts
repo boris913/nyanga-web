@@ -26,7 +26,7 @@ export type Me = {
   plan: Plan;
   planExpiresAt: string | null;
   limits: { photos: number; messagesPerDay: number | null; seeViewers: boolean };
-  listing: { id: string; status: ListingStatus; moderationNote: string | null; featuredUntil: string | null } | null;
+  listing: { id: string; status: ListingStatus; moderationNote: string | null; featuredUntil: string | null; pinnedUntil: string | null } | null;
 };
 
 export type Listing = {
@@ -38,13 +38,14 @@ export type Listing = {
   neighborhood: string | null;
   status: ListingStatus;
   featured: boolean;
+  pinned: boolean;
   bumpedAt: string;
   photos: { id: string; url: string }[];
   author: { id: string; displayName: string | null; age: number | null; gender: Gender | null; verified: boolean; plan: Plan };
   moderationNote?: string | null;
 };
 
-export type ListingPage = { featured: Listing[]; items: Listing[]; total: number; page: number; pageSize: number };
+export type ListingPage = { featured: Listing[]; items: Listing[]; total: number; page: number; pageSize: number; pages: number };
 
 export type ConversationSummary = {
   id: string;
@@ -66,7 +67,7 @@ export type Sku = 'PREMIUM' | 'VIP' | 'BUMP' | 'FEATURED_24H' | 'FEATURED_7D';
 
 export type CatalogItem =
   | { sku: 'PREMIUM' | 'VIP'; kind: 'plan'; plan: Plan; label: string; priceXaf: number; period: string; available: boolean }
-  | { sku: 'BUMP' | 'FEATURED_24H' | 'FEATURED_7D'; kind: 'boost'; label: string; priceXaf: number; featuredHours: number; available: boolean };
+  | { sku: 'BUMP' | 'FEATURED_24H' | 'FEATURED_7D'; kind: 'boost'; label: string; priceXaf: number; featuredHours: number; pinnedHours: number; available: boolean };
 
 export type AdminListing = {
   id: string;

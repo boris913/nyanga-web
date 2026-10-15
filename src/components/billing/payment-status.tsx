@@ -9,16 +9,29 @@ const POLL_MS = 4000;
 const MAX_WAIT_MS = 3 * 60_000;
 
 // Le Pulse Chariow arrive en général quelques secondes après le retour : on surveille /api/me.
-export function PaymentStatus({ sku, initialPlan, initialFeaturedUntil }: { sku: string; initialPlan: Plan; initialFeaturedUntil: string | null }) {
+export function PaymentStatus({
+  sku,
+  initialPlan,
+  initialFeaturedUntil,
+  initialPinnedUntil,
+}: {
+  sku: string;
+  initialPlan: Plan;
+  initialFeaturedUntil: string | null;
+  initialPinnedUntil: string | null;
+}) {
   const [state, setState] = useState<"waiting" | "done" | "slow">("waiting");
   const isPlan = sku === "PREMIUM" || sku === "VIP";
 
   useEffect(() => {
-    if (sku === "BUMP") return; // Une remontée ne laisse pas de trace visible dans /api/me.
     const started = Date.now();
     const timer = setInterval(async () => {
       const me = await api<Me>("/api/me").catch(() => null);
-      const activated = isPlan ? me?.plan === sku && initialPlan !== sku : me?.listing?.featuredUntil !== initialFeaturedUntil;
+      const activated = isPlan
+        ? me?.plan === sku && initialPlan !== sku
+        : sku === "BUMP"
+          ? me?.listing?.pinnedUntil !== initialPinnedUntil
+          : me?.listing?.featuredUntil !== initialFeaturedUntil;
       if (activated) {
         setState("done");
         clearInterval(timer);
@@ -28,13 +41,13 @@ export function PaymentStatus({ sku, initialPlan, initialFeaturedUntil }: { sku:
       }
     }, POLL_MS);
     return () => clearInterval(timer);
-  }, [sku, isPlan, initialPlan, initialFeaturedUntil]);
+  }, [sku, isPlan, initialPlan, initialFeaturedUntil, initialPinnedUntil]);
 
-  if (sku === "BUMP" || state === "done") {
+  if (state === "done") {
     return (
       <div className="card p-6">
         <p className="alert alert-ok">
-          {isPlan ? `Votre formule ${sku === "VIP" ? "VIP" : "Premium"} est active.` : sku === "BUMP" ? "Votre annonce remonte en tête dès la confirmation du paiement." : "Votre annonce est à la une."}
+          {isPlan ? `Votre formule ${sku === "VIP" ? "VIP" : "Premium"} est active.` : sku === "BUMP" ? "Votre annonce est en tête des annonces pour 24 h." : "Votre annonce est à la une."}
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href="/mon-annonce" className="btn btn-primary">Mon annonce</Link>

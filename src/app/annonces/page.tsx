@@ -53,7 +53,7 @@ async function Results({ searchParams }: Pick<PageProps<"/annonces">, "searchPar
     q.set("page", String(p));
     return `/annonces?${q}`;
   };
-  const pages = data ? Math.ceil(data.total / data.pageSize) : 0;
+  const pages = data?.pages ?? 0;
 
   return (
     <>

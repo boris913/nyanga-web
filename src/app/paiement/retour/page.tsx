@@ -19,7 +19,7 @@ async function Return({ searchParams }: Pick<PageProps<"/paiement/retour">, "sea
   return (
     <Container narrow>
       <PageTitle title="Merci !" subtitle="Nous attendons la confirmation de votre paiement." />
-      <PaymentStatus sku={typeof sku === "string" ? sku : ""} initialPlan={me.plan} initialFeaturedUntil={me.listing?.featuredUntil ?? null} />
+      <PaymentStatus sku={typeof sku === "string" ? sku : ""} initialPlan={me.plan} initialFeaturedUntil={me.listing?.featuredUntil ?? null} initialPinnedUntil={me.listing?.pinnedUntil ?? null} />
     </Container>
   );
 }

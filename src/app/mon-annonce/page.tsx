@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { requireMe } from "@/lib/auth";
 import { apiGet, getCities } from "@/lib/server-api";
 import type { Listing } from "@/lib/types";
-import { LISTING_STATUS, formatDate } from "@/lib/format";
+import { LISTING_STATUS, formatDate, formatDateTime } from "@/lib/format";
 import { Container, PageSkeleton, PageTitle } from "@/components/ui";
 import { ListingEditor } from "@/components/listing/listing-editor";
 import { PhotoManager } from "@/components/listing/photo-manager";
@@ -29,7 +29,9 @@ const STATUS_STYLE = {
 async function MyListing() {
   const me = await requireMe("/mon-annonce", { profile: true });
   const [listing, cities] = await Promise.all([apiGet<Listing>("/api/listings/mine"), getCities()]);
-  const featuredUntil = me.listing?.featuredUntil && new Date(me.listing.featuredUntil) > new Date() ? me.listing.featuredUntil : null;
+  const active = (iso: string | null | undefined) => (iso && new Date(iso) > new Date() ? iso : null);
+  const featuredUntil = active(me.listing?.featuredUntil);
+  const pinnedUntil = active(me.listing?.pinnedUntil);
 
   return (
     <Container>
@@ -45,6 +47,7 @@ async function MyListing() {
             {listing.status === "PENDING" && " · généralement sous 24 h."}
             {listing.moderationNote && listing.status !== "APPROVED" && <span className="block text-sm">Note : {listing.moderationNote}</span>}
             {featuredUntil && <span className="block text-sm">À la une jusqu’au {formatDate(featuredUntil)}</span>}
+            {pinnedUntil && <span className="block text-sm">En tête des annonces jusqu’au {formatDateTime(pinnedUntil)}</span>}
           </span>
           {listing.status === "APPROVED" && (
             <span className="flex gap-2">

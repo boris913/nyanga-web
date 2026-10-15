@@ -23,6 +23,9 @@ export const formatXaf = (n: number) => `${new Intl.NumberFormat('fr-FR').format
 export const formatDate = (iso: string) =>
   new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Douala' }).format(new Date(iso));
 
+export const formatDateTime = (iso: string) =>
+  new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Douala' }).format(new Date(iso));
+
 export function timeAgo(iso: string, now = Date.now()) {
   const s = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
   if (s < 60) return 'à l’instant';
