@@ -9,7 +9,7 @@ import { Container, PageSkeleton, PageTitle } from "@/components/ui";
 import { ListingEditor } from "@/components/listing/listing-editor";
 import { PhotoManager } from "@/components/listing/photo-manager";
 
-export const metadata: Metadata = { title: "Mon annonce" };
+export const metadata: Metadata = { title: "Mon annonce", robots: { index: false, follow: false } };
 
 export default function MyListingPage() {
   return (
@@ -37,10 +37,21 @@ async function MyListing() {
     <Container>
       <PageTitle
         title={listing ? "Mon annonce" : "Publier mon annonce"}
-        subtitle="Une seule annonce par membre. Chaque modification est relue avant d’être visible."
+        subtitle={
+          me.plan === "STANDARD"
+            ? "Une seule annonce par membre. Chaque modification est relue par l’équipe avant d’être visible."
+            : `Une seule annonce par membre. Avec ${me.plan === "VIP" ? "VIP" : "Premium"}, vos modifications sont publiées aussitôt.`
+        }
       />
 
-      {listing && (
+      {listing && !listing.photos.length && (
+        <div className="alert alert-info mb-6">
+          <strong>Ajoutez une photo</strong> pour que votre annonce soit {me.plan === "STANDARD" ? "relue puis publiée" : "publiée"}. Sans photo, elle n’est pas
+          visible.
+        </div>
+      )}
+
+      {listing && listing.photos.length > 0 && (
         <div className={`alert ${STATUS_STYLE[listing.status]} mb-6 flex flex-wrap items-center justify-between gap-3`}>
           <span>
             <strong>{LISTING_STATUS[listing.status]}</strong>
@@ -67,10 +78,10 @@ async function MyListing() {
           {listing ? (
             <PhotoManager photos={listing.photos} limit={me.limits.photos} plan={me.plan} />
           ) : (
-            <p className="mt-2 text-sm text-muted">Enregistrez d’abord votre annonce, puis ajoutez jusqu’à {me.limits.photos} photos.</p>
+            <p className="mt-2 text-sm text-muted">Enregistrez d’abord votre annonce, puis ajoutez au moins une photo (jusqu’à {me.limits.photos}).</p>
           )}
           <p className="mt-5 text-sm text-muted">
-            Photos de vous uniquement, visage visible, sans nudité. Pas de numéro ni de lien dans le texte : les membres vous écrivent par la messagerie.
+            Photos de vous uniquement, visage visible, sans nudité. Pas de numéro dans le texte : il va dans le champ WhatsApp prévu.
           </p>
         </section>
       </div>

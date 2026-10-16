@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import type { Listing } from "@/lib/types";
 import { INTENTS, timeAgo } from "@/lib/format";
 import { PlanBadge, VerifiedBadge } from "./badges";
@@ -9,12 +10,14 @@ export function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Link
       href={`/annonces/${listing.id}`}
-      className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md"
+      className={`card listing-card group flex flex-col overflow-hidden ${a.plan === "VIP" ? "listing-card-vip" : ""}`}
     >
       <div className="relative aspect-[4/3] bg-brand-soft">
         {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo.url} alt="" className="size-full object-cover" loading="lazy" />
+          <ViewTransition name={`photo-${listing.id}`} share="morph" default="none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo.thumbUrl} alt="" width={480} height={360} className="size-full object-cover" loading="lazy" decoding="async" />
+          </ViewTransition>
         ) : (
           <div className="grid size-full place-items-center font-display text-5xl text-brand/40">
             {(a.displayName ?? "?").charAt(0).toUpperCase()}
@@ -33,7 +36,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           </span>
           {a.verified && <VerifiedBadge />}
         </div>
-        <h3 className="line-clamp-2 font-display text-lg leading-snug group-hover:text-brand-dark">{listing.title}</h3>
+        <h3 className="line-clamp-2 font-display text-lg leading-snug [overflow-wrap:anywhere] group-hover:text-brand-dark">{listing.title}</h3>
         <p className="mt-auto flex flex-wrap gap-x-2 text-sm text-muted">
           <span>{listing.city.name}{listing.neighborhood ? ` · ${listing.neighborhood}` : ""}</span>
           <span aria-hidden>·</span>
@@ -48,7 +51,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
 export function ListingGrid({ listings }: { listings: Listing[] }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="rise grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {listings.map((l) => (
         <ListingCard key={l.id} listing={l} />
       ))}

@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getMe } from "@/lib/server-api";
 import { LogoutButton } from "./logout-button";
+import { HeartMark } from "./brand/heart";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2" aria-label="Nyanga, accueil">
-      <span className="grid size-9 place-items-center rounded-full bg-brand font-display text-lg font-semibold text-white">N</span>
-      <span className="font-display text-2xl font-semibold tracking-tight">Nyanga</span>
+    <Link href="/" className="group flex shrink-0 items-center gap-1.5" aria-label="Nyanga, accueil">
+      <HeartMark className="size-9 transition-transform duration-300 group-hover:scale-110" />
+      <span className="font-display text-[1.6rem] font-semibold italic leading-none tracking-tight">Nyanga</span>
     </Link>
   );
 }

@@ -11,7 +11,7 @@ const RULES = [
   ["Aucun service tarifé", "Les annonces proposant ou demandant de l’argent, des cadeaux ou des services sexuels sont interdites et entraînent un bannissement."],
   ["Vous, et seulement vous", "Publiez uniquement vos propres photos, visage visible et sans nudité. Une seule annonce par personne."],
   ["Respect", "Insultes, harcèlement, propos haineux ou menaces : le compte est suspendu."],
-  ["Pas de coordonnées dans l’annonce", "Numéros et liens WhatsApp ou Telegram restent hors de l’annonce. Échangez d’abord par la messagerie."],
+  ["Pas de coordonnées dans le texte", "Votre numéro va dans le champ WhatsApp prévu, jamais dans le titre ou la présentation : sur le site, il reste masqué."],
 ];
 
 const TIPS = [
@@ -26,7 +26,7 @@ export default function CharterPage() {
   return (
     <Container>
       <div className="max-w-3xl">
-        <PageTitle title="Charte et sécurité" subtitle="Nyanga est un lieu de rencontre respectueux. Chaque annonce est relue par notre équipe avant publication." />
+        <PageTitle title="Charte et sécurité" subtitle="Nyanga est un lieu de rencontre respectueux. Notre équipe surveille les annonces et traite chaque signalement." />
 
         <section>
           <h2 className="font-display text-2xl font-semibold">Les règles</h2>
@@ -55,7 +55,8 @@ export default function CharterPage() {
         <section className="mt-12">
           <h2 className="font-display text-2xl font-semibold">Vos données</h2>
           <p className="mt-3 text-muted">
-            Votre email et votre numéro Mobile Money ne sont jamais affichés. Votre selfie de vérification est vu uniquement par l’équipe de
+            Votre email et votre numéro Mobile Money ne sont jamais affichés. Votre numéro WhatsApp apparaît masqué sur le site
+            (« +237 6XX XX XX XX ») : seule la personne qui ouvre WhatsApp pour vous écrire le voit en entier. Votre selfie de vérification est vu uniquement par l’équipe de
             modération. Les paiements sont traités par Chariow : Nyanga n’a pas accès à vos informations de paiement.
           </p>
         </section>

@@ -5,28 +5,30 @@ import type { ListingPage } from "@/lib/types";
 import { SearchForm } from "@/components/search-form";
 import { ListingGrid, ListingGridSkeleton } from "@/components/listing-card";
 import { Container, EmptyState } from "@/components/ui";
+import { FloatingHearts, Heart } from "@/components/brand/heart";
 
 export default function HomePage() {
   return (
     <>
-      <section className="border-b border-line bg-gradient-to-b from-brand-soft/70 to-cream">
+      <section className="relative overflow-hidden border-b border-line bg-gradient-to-b from-brand-soft via-brand-soft/50 to-cream">
+        <FloatingHearts />
         <Container>
           <div className="grid gap-10 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center">
             <div>
-              <p className="chip mb-5 bg-surface text-brand-dark">Annonces relues par notre équipe</p>
+              <p className="chip mb-5 bg-surface text-brand-dark shadow-sm">Rencontres entre adultes au Cameroun</p>
               <h1 className="font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">
-                Trouver quelqu’un de bien, près de chez vous.
+                Trouver quelqu’un de bien, <span className="text-glam italic">près de chez vous.</span>
               </h1>
               <p className="mt-5 max-w-lg text-lg text-muted">
-                Des célibataires de Douala, Yaoundé, Bafoussam et de tout le Cameroun publient leur annonce. Écrivez-leur en
-                privé, sans partager votre numéro.
+                Des célibataires de Douala, Yaoundé, Bafoussam et de tout le Cameroun publient leur annonce. Écrivez-leur
+                par la messagerie ou sur WhatsApp : leur numéro n’apparaît jamais en clair sur le site.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link href="/mon-annonce" className="btn btn-primary">Publier mon annonce</Link>
                 <Link href="/annonces" className="btn btn-outline">Voir les annonces</Link>
               </div>
             </div>
-            <div className="card p-5 shadow-sm sm:p-6">
+            <div className="card relative p-5 shadow-lg shadow-brand/10 sm:p-6">
               <h2 className="mb-4 font-display text-xl font-semibold">Rechercher</h2>
               <Suspense fallback={<div className="skeleton h-48" />}>
                 <SearchForm />
@@ -41,13 +43,14 @@ export default function HomePage() {
           <HomeListings />
         </Suspense>
 
-        <section className="mt-16 grid gap-5 md:grid-cols-3">
+        <section className="rise mt-16 grid gap-5 md:grid-cols-3">
           {[
-            ["Annonces vérifiées", "Chaque annonce est relue avant publication. Les badges « Vérifié » signalent une photo contrôlée par l’équipe."],
-            ["Messagerie privée", "Échangez sur Nyanga avant de donner votre numéro. Vous gardez la main sur ce que vous partagez."],
+            ["Des profils authentiques", "Une photo obligatoire sur chaque annonce. Le badge « Vérifié » signale une photo contrôlée par l’équipe."],
+            ["Messagerie ou WhatsApp", "Écrivez sur Nyanga ou ouvrez WhatsApp en un geste. Les numéros restent masqués sur le site."],
             ["Signalement en un clic", "Un comportement douteux ? Signalez l’annonce : un modérateur la regarde rapidement."],
           ].map(([title, text]) => (
-            <div key={title} className="card p-6">
+            <div key={title} className="card p-6 transition hover:-translate-y-0.5 hover:shadow-md">
+              <Heart className="mb-3 size-6 text-brand" />
               <h3 className="font-display text-lg font-semibold">{title}</h3>
               <p className="mt-2 text-muted">{text}</p>
             </div>
@@ -69,7 +72,7 @@ async function HomeListings() {
     return (
       <div className="mt-14">
         <EmptyState title="Soyez parmi les premiers" action={{ href: "/mon-annonce", label: "Publier mon annonce" }}>
-          Aucune annonce n’est encore en ligne. Publiez la vôtre, elle apparaîtra ici après relecture.
+          Aucune annonce n’est encore en ligne. Publiez la vôtre, elle apparaîtra ici.
         </EmptyState>
       </div>
     );

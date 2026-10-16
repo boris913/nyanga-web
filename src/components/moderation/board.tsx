@@ -114,7 +114,7 @@ function ListingReview({ listing: l, onDone }: { listing: AdminListing; onDone: 
         <div>
           <h3 className="font-display text-lg font-semibold">{l.title}</h3>
           <p className="text-sm text-muted">
-            {l.user.displayName} · {l.user.email} · {l.city}
+            {l.user.displayName} · {l.user.email} · {l.city}{l.whatsapp && ` · WhatsApp ${l.whatsapp}`}
             {l.neighborhood ? `, ${l.neighborhood}` : ""} · {INTENTS[l.intent]} · modifiée {timeAgo(l.updatedAt)}
           </p>
         </div>

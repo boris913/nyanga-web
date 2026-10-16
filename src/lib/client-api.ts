@@ -38,7 +38,7 @@ export async function api<T = unknown>(path: string, init: { method?: string; bo
 export const errorMessage = (err: unknown) => (err instanceof Error ? err.message : 'Une erreur est survenue, réessayez.');
 
 /** Envoi direct navigateur → bucket avec le formulaire signé renvoyé par l'API. */
-export async function uploadToBucket(presign: { url: string; fields: Record<string, string> }, file: File) {
+export async function uploadToBucket(presign: { url: string; fields: Record<string, string> }, file: Blob) {
   const form = new FormData();
   for (const [k, v] of Object.entries(presign.fields)) form.append(k, v);
   form.append('file', file);

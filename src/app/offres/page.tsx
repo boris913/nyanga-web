@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 const FEATURES: Record<Plan, string[]> = {
   STANDARD: ["1 annonce relue par l’équipe", "3 photos", "10 messages par 24 h"],
-  PREMIUM: ["Messages illimités", "10 photos", "Badge Premium sur l’annonce"],
-  VIP: ["Tout Premium", "15 photos", "Badge VIP, le plus visible"],
+  PREMIUM: ["Annonce publiée aussitôt, sans attente", "Messages illimités", "10 photos", "Badge Premium sur l’annonce"],
+  VIP: ["Tout Premium", "15 photos", "Badge VIP doré, le plus visible"],
 };
 
 export default function OffersPage() {

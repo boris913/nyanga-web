@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api, errorMessage, uploadToBucket } from "@/lib/client-api";
 import type { Verification } from "@/lib/types";
+import { prepareSelfie } from "@/lib/image";
+import { toast } from "@/components/brand/effects";
 
 type Presign = { key: string; url: string; fields: Record<string, string> };
 
@@ -19,9 +21,11 @@ export function VerificationUpload({ status }: { status: Verification }) {
     setPending(true);
     setError(null);
     try {
-      const presign = await api<Presign>("/api/me/verification/upload", { body: { contentType: file.type } });
-      await uploadToBucket(presign, file);
+      const photo = await prepareSelfie(file);
+      const presign = await api<Presign>("/api/me/verification/upload", { body: { contentType: photo.type } });
+      await uploadToBucket(presign, photo);
       await api("/api/me/verification", { body: { key: presign.key } });
+      toast("Selfie envoyé");
       router.refresh();
     } catch (err) {
       setError(errorMessage(err));
@@ -39,7 +43,7 @@ export function VerificationUpload({ status }: { status: Verification }) {
         {pending ? "Envoi…" : "Envoyer mon selfie"}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/*"
           capture="user"
           className="sr-only"
           disabled={pending}

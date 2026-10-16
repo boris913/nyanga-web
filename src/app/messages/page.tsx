@@ -7,7 +7,7 @@ import type { ConversationSummary } from "@/lib/types";
 import { timeAgo } from "@/lib/format";
 import { Container, EmptyState, PageSkeleton, PageTitle } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Messages" };
+export const metadata: Metadata = { title: "Messages", robots: { index: false, follow: false } };
 
 export default function MessagesPage() {
   return (

@@ -12,7 +12,7 @@ export function VerifiedBadge() {
 }
 
 export function PlanBadge({ plan }: { plan: Plan }) {
-  if (plan === "VIP") return <span className="chip bg-ink text-gold-soft">VIP</span>;
-  if (plan === "PREMIUM") return <span className="chip bg-brand text-white">Premium</span>;
+  if (plan === "VIP") return <span className="chip bg-gradient-to-r from-[#7a4f08] to-gold text-white shadow-sm">♛ VIP</span>;
+  if (plan === "PREMIUM") return <span className="chip bg-gradient-to-r from-brand-dark to-brand text-white shadow-sm">Premium</span>;
   return null;
 }

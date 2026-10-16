@@ -8,7 +8,7 @@ import type { ConversationThread } from "@/lib/types";
 import { Container, PageSkeleton } from "@/components/ui";
 import { Thread } from "@/components/messages/thread";
 
-export const metadata: Metadata = { title: "Conversation" };
+export const metadata: Metadata = { title: "Conversation", robots: { index: false, follow: false } };
 
 export default function ConversationPage({ params }: PageProps<"/messages/[id]">) {
   return (

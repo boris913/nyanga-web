@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/client-api";
 import type { Me, Plan } from "@/lib/types";
+import { Heart } from "@/components/brand/heart";
 
 const POLL_MS = 4000;
 const MAX_WAIT_MS = 3 * 60_000;
@@ -60,7 +61,7 @@ export function PaymentStatus({
     <div className="card p-6">
       {state === "waiting" ? (
         <p className="flex items-center gap-3">
-          <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" aria-hidden />
+          <Heart className="size-5 shrink-0 animate-heartbeat text-brand" />
           Confirmation en cours… Gardez cette page ouverte.
         </p>
       ) : (

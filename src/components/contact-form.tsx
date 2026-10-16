@@ -1,15 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api, ApiError, errorMessage } from "@/lib/client-api";
 import Link from "next/link";
+import { heartBurst, toast } from "@/components/brand/effects";
 
 export function ContactForm({ listingId, name }: { listingId: string; name: string }) {
   const router = useRouter();
   const [body, setBody] = useState("");
   const [error, setError] = useState<{ text: string; upsell: boolean } | null>(null);
   const [pending, setPending] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -17,6 +19,8 @@ export function ContactForm({ listingId, name }: { listingId: string; name: stri
     setError(null);
     try {
       const { id } = await api<{ id: string }>("/api/conversations", { body: { listingId, body } });
+      heartBurst(button.current);
+      toast("Message envoyé");
       router.push(`/messages/${id}`);
     } catch (err) {
       setError({ text: errorMessage(err), upsell: err instanceof ApiError && err.status === 429 });
@@ -43,7 +47,7 @@ export function ContactForm({ listingId, name }: { listingId: string; name: stri
           {error.upsell && <Link href="/offres" className="font-semibold underline">Voir les offres</Link>}
         </p>
       )}
-      <button type="submit" className="btn btn-primary" disabled={pending || !body.trim()}>
+      <button ref={button} type="submit" className="btn btn-primary" disabled={pending || !body.trim()}>
         {pending ? "Envoi…" : "Envoyer le message"}
       </button>
     </form>

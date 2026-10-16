@@ -9,7 +9,7 @@ import { ProfileForm } from "@/components/profile/profile-form";
 import { PasswordForm } from "@/components/profile/password-form";
 import { VerificationUpload } from "@/components/profile/verification-upload";
 
-export const metadata: Metadata = { title: "Mon profil" };
+export const metadata: Metadata = { title: "Mon profil", robots: { index: false, follow: false } };
 
 export default function ProfilePage({ searchParams }: PageProps<"/profil">) {
   return (

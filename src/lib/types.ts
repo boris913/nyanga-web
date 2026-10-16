@@ -40,7 +40,11 @@ export type Listing = {
   featured: boolean;
   pinned: boolean;
   bumpedAt: string;
-  photos: { id: string; url: string }[];
+  photos: { id: string; url: string; thumbUrl: string }[];
+  /** « +237 6XX XX XX XX » : le numéro complet n'est jamais envoyé aux visiteurs. */
+  whatsappMasked: string | null;
+  /** Numéro complet, renvoyé seulement à l'annonceur (/api/listings/mine). */
+  whatsapp?: string | null;
   author: { id: string; displayName: string | null; age: number | null; gender: Gender | null; verified: boolean; plan: Plan };
   moderationNote?: string | null;
 };
@@ -76,6 +80,7 @@ export type AdminListing = {
   intent: Intent;
   city: string;
   neighborhood: string | null;
+  whatsapp: string | null;
   status: ListingStatus;
   moderationNote: string | null;
   updatedAt: string;

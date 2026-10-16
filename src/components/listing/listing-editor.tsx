@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api, ApiError, errorMessage } from "@/lib/client-api";
 import { INTENTS } from "@/lib/format";
-import type { City, Intent, Listing } from "@/lib/types";
+import type { City, Intent, Listing, ListingStatus } from "@/lib/types";
+import { heartBurst, toast } from "@/components/brand/effects";
+import { WhatsappIcon } from "./whatsapp-button";
 
-type Result = { id: string; status: string; warnings: string[] };
+type Result = { id: string; status: ListingStatus };
+
+const localWhatsapp = (phone: string | null | undefined) => (phone ? phone.replace(/^\+237/, "") : "");
 
 export function ListingEditor({ listing, cities, defaultCity }: { listing: Listing | null; cities: City[]; defaultCity: string }) {
   const router = useRouter();
@@ -16,8 +20,10 @@ export function ListingEditor({ listing, cities, defaultCity }: { listing: Listi
     intent: (listing?.intent ?? "RELATION") as Intent,
     citySlug: listing?.city.slug ?? defaultCity,
     neighborhood: listing?.neighborhood ?? "",
+    whatsapp: localWhatsapp(listing?.whatsapp),
   });
-  const [status, setStatus] = useState<{ ok?: string; warnings?: string[]; error?: string; reasons?: string[] }>({});
+  const submitRef = useRef<HTMLButtonElement>(null);
+  const [status, setStatus] = useState<{ ok?: string; error?: string; reasons?: string[] }>({});
   const [pending, setPending] = useState(false);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm({ ...form, [k]: e.target.value });
@@ -28,12 +34,24 @@ export function ListingEditor({ listing, cities, defaultCity }: { listing: Listi
     setStatus({});
     try {
       const r = await api<Result>("/api/listings/mine", { method: "PUT", body: { ...form, neighborhood: form.neighborhood || undefined } });
-      setStatus({ ok: "Annonce envoyée en relecture.", warnings: r.warnings });
+      const hasPhoto = !!listing?.photos.length;
+      const ok = !hasPhoto
+        ? "Annonce enregistrée. Ajoutez maintenant au moins une photo."
+        : r.status === "APPROVED"
+          ? "Annonce publiée."
+          : "Annonce envoyée en relecture.";
+      setStatus({ ok });
+      heartBurst(submitRef.current);
+      toast(r.status === "APPROVED" && hasPhoto ? "Annonce publiée" : "Annonce enregistrée");
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) {
+        const phone = err.field("whatsapp");
         const field = err.field("title") ?? err.field("body");
-        setStatus({ error: field ? fieldMessage(field) : err.message, reasons: Array.isArray(err.details) ? (err.details as string[]) : undefined });
+        setStatus({
+          error: phone ? `Numéro WhatsApp : ${phoneMessage(phone)}` : field ? fieldMessage(field) : err.message,
+          reasons: Array.isArray(err.details) ? (err.details as string[]) : undefined,
+        });
       } else setStatus({ error: errorMessage(err) });
     }
     setPending(false);
@@ -75,6 +93,27 @@ export function ListingEditor({ listing, cities, defaultCity }: { listing: Listi
         </label>
       </div>
 
+      <label className="field">
+        <span className="label flex items-center gap-1.5">
+          <WhatsappIcon className="size-4 text-[#128c7e]" /> Numéro WhatsApp
+        </span>
+        <div className="flex items-stretch overflow-hidden rounded-xl border border-line bg-surface focus-within:outline focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-brand">
+          <span className="grid place-items-center border-r border-line bg-cream px-3 text-sm font-semibold text-muted">+237</span>
+          <input
+            className="w-full min-w-0 bg-transparent px-3.5 py-2.5 text-base outline-none"
+            required
+            inputMode="tel"
+            autoComplete="tel-national"
+            placeholder="6XX XX XX XX"
+            value={form.whatsapp}
+            onChange={set("whatsapp")}
+          />
+        </div>
+        <span className="hint">
+          Obligatoire. Les visiteurs voient seulement « +237 6XX XX XX XX » sur le site ; le numéro s’affiche dans WhatsApp quand quelqu’un vous écrit.
+        </span>
+      </label>
+
       {status.error && (
         <div className="alert alert-error text-sm">
           {status.error}
@@ -84,21 +123,17 @@ export function ListingEditor({ listing, cities, defaultCity }: { listing: Listi
       {status.ok && (
         <div className="alert alert-ok text-sm">
           {status.ok}
-          {!!status.warnings?.length && (
-            <>
-              <span className="block">Points que le modérateur vérifiera :</span>
-              <ul className="list-disc pl-5">{status.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
-            </>
-          )}
         </div>
       )}
       <div>
-        <button type="submit" className="btn btn-primary" disabled={pending}>
+        <button ref={submitRef} type="submit" className="btn btn-primary" disabled={pending}>
           {pending ? "Envoi…" : listing ? "Enregistrer les modifications" : "Publier mon annonce"}
         </button>
       </div>
     </form>
   );
 }
+
+const phoneMessage = (m: string) => (/at least|au moins|too small/i.test(m) ? "numéro trop court." : m);
 
 const fieldMessage = (m: string) => (/at least|au moins/i.test(m) ? "Le titre ou la présentation est trop court." : m);

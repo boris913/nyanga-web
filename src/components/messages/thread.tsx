@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api, ApiError, errorMessage } from "@/lib/client-api";
 import type { ConversationThread, Message } from "@/lib/types";
+import { heartBurst } from "@/components/brand/effects";
 
 const POLL_MS = 6000;
 
@@ -16,6 +17,9 @@ export function Thread({ initial }: { initial: ConversationThread }) {
   const [error, setError] = useState<{ text: string; upsell: boolean } | null>(null);
   const [pending, setPending] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  // Seuls les messages arrivés après l'ouverture de la conversation sont animés.
+  const [seen] = useState(() => new Set(initial.messages.map((m) => m.id)));
 
   // Rafraîchissement périodique, suspendu quand l'onglet est masqué.
   useEffect(() => {
@@ -40,6 +44,7 @@ export function Thread({ initial }: { initial: ConversationThread }) {
       const msg = await api<Message>(`/api/conversations/${initial.id}/messages`, { body: { body: text } });
       setMessages((m) => [...m, msg]);
       setBody("");
+      heartBurst(button.current);
     } catch (err) {
       setError({ text: errorMessage(err), upsell: err instanceof ApiError && err.status === 429 });
     }
@@ -50,10 +55,10 @@ export function Thread({ initial }: { initial: ConversationThread }) {
     <div className="card flex h-[calc(100dvh-14rem)] min-h-96 flex-col overflow-hidden">
       <ol className="flex flex-1 flex-col gap-2 overflow-y-auto p-4 sm:p-6">
         {messages.map((m) => (
-          <li key={m.id} className={`flex flex-col ${m.mine ? "items-end" : "items-start"}`}>
+          <li key={m.id} className={`flex flex-col ${m.mine ? "items-end" : "items-start"} ${seen.has(m.id) ? "" : "animate-msg"}`}>
             <p
-              className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 py-2.5 sm:max-w-[70%] ${
-                m.mine ? "rounded-br-md bg-brand text-white" : "rounded-bl-md bg-cream"
+              className={`max-w-[85%] whitespace-pre-line rounded-2xl px-4 [overflow-wrap:anywhere] py-2.5 sm:max-w-[70%] ${
+                m.mine ? "rounded-br-md bg-gradient-to-br from-brand to-[#c9485a] text-white" : "rounded-bl-md bg-cream"
               }`}
             >
               {m.body}
@@ -86,7 +91,7 @@ export function Thread({ initial }: { initial: ConversationThread }) {
             placeholder="Votre message…"
             aria-label="Votre message"
           />
-          <button type="submit" className="btn btn-primary" disabled={pending || !body.trim()}>Envoyer</button>
+          <button ref={button} type="submit" className="btn btn-primary" disabled={pending || !body.trim()}>Envoyer</button>
         </div>
       </form>
     </div>
