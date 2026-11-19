@@ -1,7 +1,15 @@
 import { getCities } from "@/lib/server-api";
 import { GENDERS, INTENTS } from "@/lib/format";
 
-export type SearchValues = { ville?: string; intention?: string; genre?: string; age_min?: string; age_max?: string };
+export type SearchValues = {
+  ville?: string;
+  quartier?: string;
+  intention?: string;
+  genre?: string;
+  age_min?: string;
+  age_max?: string;
+  verifies?: string;
+};
 
 // Formulaire GET classique : fonctionne sans JavaScript et donne des URLs partageables.
 export async function SearchForm({ values = {}, compact = false }: { values?: SearchValues; compact?: boolean }) {
@@ -16,6 +24,10 @@ export async function SearchForm({ values = {}, compact = false }: { values?: Se
             <option key={c.slug} value={c.slug}>{c.name}</option>
           ))}
         </select>
+      </label>
+      <label className="field">
+        <span className="label">Quartier</span>
+        <input name="quartier" type="text" defaultValue={values.quartier} placeholder="Bonamoussadi, Bastos…" maxLength={80} className="input" />
       </label>
       <label className="field">
         <span className="label">Je cherche</span>
@@ -47,6 +59,10 @@ export async function SearchForm({ values = {}, compact = false }: { values?: Se
           </label>
         </div>
       )}
+      <label className={`flex items-center gap-3 text-sm ${compact ? "lg:col-span-5" : ""}`}>
+        <input name="verifies" type="checkbox" value="1" defaultChecked={values.verifies === "1"} className="size-4 accent-brand" />
+        <span>Profils vérifiés uniquement</span>
+      </label>
       <div className="flex items-end">
         <button type="submit" className="btn btn-primary w-full">Rechercher</button>
       </div>

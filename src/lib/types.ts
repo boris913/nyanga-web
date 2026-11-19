@@ -31,6 +31,8 @@ export type Me = {
 
 export type Listing = {
   id: string;
+  /** Identifiant lisible pour l'URL publique (/annonces/<slug>). */
+  slug: string;
   title: string;
   body: string;
   intent: Intent;
@@ -85,6 +87,9 @@ export type AdminListing = {
   moderationNote: string | null;
   updatedAt: string;
   openReports: number;
+  /** Score de risque calculé par l'API (0 à 100) ; la file est déjà triée par risque. */
+  riskScore?: number;
+  riskReasons?: string[];
   photos: string[];
   user: { id: string; displayName: string | null; email: string; birthDate: string | null; verification: Verification };
 };
