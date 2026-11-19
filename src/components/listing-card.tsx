@@ -1,17 +1,15 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 import type { Listing } from "@/lib/types";
-import { INTENTS, timeAgo } from "@/lib/format";
+import { INTENTS, cityHref, listingHref, timeAgo } from "@/lib/format";
 import { PlanBadge, VerifiedBadge } from "./badges";
 
+// Toute la carte est cliquable via le lien du titre (étiré en ::after) ; le lien vers la ville passe au-dessus.
 export function ListingCard({ listing }: { listing: Listing }) {
   const photo = listing.photos[0];
   const a = listing.author;
   return (
-    <Link
-      href={`/annonces/${listing.id}`}
-      className={`card listing-card group flex flex-col overflow-hidden ${a.plan === "VIP" ? "listing-card-vip" : ""}`}
-    >
+    <article className={`card listing-card group relative flex flex-col overflow-hidden ${a.plan === "VIP" ? "listing-card-vip" : ""}`}>
       <div className="relative aspect-[4/3] bg-brand-soft">
         {photo ? (
           <ViewTransition name={`photo-${listing.id}`} share="morph" default="none">
@@ -36,16 +34,23 @@ export function ListingCard({ listing }: { listing: Listing }) {
           </span>
           {a.verified && <VerifiedBadge />}
         </div>
-        <h3 className="line-clamp-2 font-display text-lg leading-snug [overflow-wrap:anywhere] group-hover:text-brand-dark">{listing.title}</h3>
+        <h3 className="line-clamp-2 font-display text-lg leading-snug [overflow-wrap:anywhere] group-hover:text-brand-dark">
+          <Link href={listingHref(listing)} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-brand">
+            {listing.title}
+          </Link>
+        </h3>
         <p className="mt-auto flex flex-wrap gap-x-2 text-sm text-muted">
-          <span>{listing.city.name}{listing.neighborhood ? ` · ${listing.neighborhood}` : ""}</span>
+          <span>
+            <Link href={cityHref(listing.city.slug)} className="relative z-10 hover:text-ink hover:underline">{listing.city.name}</Link>
+            {listing.neighborhood ? ` · ${listing.neighborhood}` : ""}
+          </span>
           <span aria-hidden>·</span>
           <span>{INTENTS[listing.intent]}</span>
           <span aria-hidden>·</span>
           <span>{timeAgo(listing.bumpedAt)}</span>
         </p>
       </div>
-    </Link>
+    </article>
   );
 }
 

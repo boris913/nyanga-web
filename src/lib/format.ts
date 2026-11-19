@@ -42,3 +42,9 @@ export function timeAgo(iso: string, now = Date.now()) {
 export function safeNext(value: unknown, fallback = '/') {
   return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\') ? value : fallback;
 }
+
+/** URL publique d'une annonce : le slug quand l'API le fournit, sinon l'identifiant. */
+export const listingHref = (listing: { id: string; slug?: string | null }) => `/annonces/${listing.slug || listing.id}`;
+
+/** Page des annonces d'une ville. */
+export const cityHref = (slug: string) => `/annonces/ville/${slug}`;

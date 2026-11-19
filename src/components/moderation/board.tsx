@@ -118,11 +118,19 @@ function ListingReview({ listing: l, onDone }: { listing: AdminListing; onDone: 
             {l.neighborhood ? `, ${l.neighborhood}` : ""} · {INTENTS[l.intent]} · modifiée {timeAgo(l.updatedAt)}
           </p>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
+          {typeof l.riskScore === "number" && <RiskBadge score={l.riskScore} />}
           {l.openReports > 0 && <span className="chip bg-brand text-white">{l.openReports} signalement(s)</span>}
           {l.user.verification === "VERIFIED" && <span className="chip bg-leaf-soft text-leaf">Vérifié</span>}
         </div>
       </div>
+      {l.riskReasons && l.riskReasons.length > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Motifs du score de risque">
+          {l.riskReasons.map((reason) => (
+            <li key={reason} className="chip bg-cream text-muted ring-1 ring-line">{reason}</li>
+          ))}
+        </ul>
+      )}
       {l.moderationNote && <p className="alert alert-info mt-3 text-sm">{l.moderationNote}</p>}
       <p className="mt-3 whitespace-pre-line text-[0.9375rem]">{l.body}</p>
       {l.photos.length > 0 && (
@@ -152,6 +160,17 @@ function ListingReview({ listing: l, onDone }: { listing: AdminListing; onDone: 
       </div>
       {error && <p className="alert alert-error mt-3 text-sm">{error}</p>}
     </article>
+  );
+}
+
+// Score calculé par l'API : neutre sous 30, à surveiller de 30 à 59, élevé à partir de 60.
+function RiskBadge({ score }: { score: number }) {
+  const [label, style] =
+    score >= 60 ? ["Risque élevé", "bg-brand text-white"] : score >= 30 ? ["Risque modéré", "bg-gold-soft text-gold"] : ["Risque faible", "bg-cream text-muted ring-1 ring-line"];
+  return (
+    <span className={`chip ${style}`} title="Score de risque calculé automatiquement (0 à 100)">
+      {label} · {Math.round(score)}
+    </span>
   );
 }
 

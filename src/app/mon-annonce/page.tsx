@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { requireMe } from "@/lib/auth";
 import { apiGet, getCities } from "@/lib/server-api";
 import type { Listing } from "@/lib/types";
-import { LISTING_STATUS, formatDate, formatDateTime } from "@/lib/format";
+import { LISTING_STATUS, formatDate, formatDateTime, listingHref } from "@/lib/format";
 import { Container, PageSkeleton, PageTitle } from "@/components/ui";
 import { ListingEditor } from "@/components/listing/listing-editor";
 import { PhotoManager } from "@/components/listing/photo-manager";
@@ -62,7 +62,7 @@ async function MyListing() {
           </span>
           {listing.status === "APPROVED" && (
             <span className="flex gap-2">
-              <Link href={`/annonces/${listing.id}`} className="btn btn-outline btn-sm">Voir</Link>
+              <Link href={listingHref(listing)} className="btn btn-outline btn-sm">Voir</Link>
               <Link href="/offres#boosts" className="btn btn-primary btn-sm">Mettre en avant</Link>
             </span>
           )}

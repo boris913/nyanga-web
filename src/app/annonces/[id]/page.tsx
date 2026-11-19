@@ -1,20 +1,37 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
 import { apiGet, getMe } from "@/lib/server-api";
 import type { Listing } from "@/lib/types";
-import { GENDERS, INTENTS, LISTING_STATUS, timeAgo } from "@/lib/format";
+import { GENDERS, INTENTS, LISTING_STATUS, cityHref, listingHref, timeAgo } from "@/lib/format";
 import { PlanBadge, VerifiedBadge } from "@/components/badges";
 import { Container, PageSkeleton } from "@/components/ui";
 import { ContactForm } from "@/components/contact-form";
 import { ReportButton } from "@/components/report-button";
 import { WhatsappButton } from "@/components/listing/whatsapp-button";
 
+const decode = (v: string) => {
+  try {
+    return decodeURIComponent(v);
+  } catch {
+    return v;
+  }
+};
+
+// Le paramètre peut être un slug ou un identifiant : l'API accepte les deux.
+const fetchListing = (idOrSlug: string) => apiGet<Listing>(`/api/listings/${encodeURIComponent(idOrSlug)}`);
+
+/** Atteinte par l'identifiant (anciens liens) : redirection permanente vers l'URL au slug. */
+function redirectToSlug(param: string, listing: Listing) {
+  if (listing.slug && param !== listing.slug) permanentRedirect(listingHref(listing));
+}
+
 export async function generateMetadata({ params }: PageProps<"/annonces/[id]">): Promise<Metadata> {
-  const { id } = await params;
-  const listing = await apiGet<Listing>(`/api/listings/${id}`).catch(() => null);
+  const id = decode((await params).id);
+  const listing = await fetchListing(id).catch(() => null);
   if (!listing) return { title: "Annonce", robots: { index: false } };
+  redirectToSlug(id, listing);
   const a = listing.author;
   const who = `${a.displayName ?? "Annonce"}${a.age ? `, ${a.age} ans` : ""} · ${listing.city.name}`;
   const cover = listing.photos[0];
@@ -38,9 +55,11 @@ export default function ListingPage({ params }: PageProps<"/annonces/[id]">) {
 }
 
 async function ListingDetail({ params }: Pick<PageProps<"/annonces/[id]">, "params">) {
-  const { id } = await params;
-  const [listing, me] = await Promise.all([apiGet<Listing>(`/api/listings/${id}`), getMe().catch(() => null)]);
+  const id = decode((await params).id);
+  const [listing, me] = await Promise.all([fetchListing(id), getMe().catch(() => null)]);
   if (!listing) notFound();
+  redirectToSlug(id, listing);
+  const href = listingHref(listing);
   const a = listing.author;
   const isOwner = me?.id === a.id;
   const [cover, ...others] = listing.photos;
@@ -50,7 +69,7 @@ async function ListingDetail({ params }: Pick<PageProps<"/annonces/[id]">, "para
       <nav className="mt-6 text-sm text-muted">
         <Link href="/annonces" className="hover:text-ink">Annonces</Link>
         <span className="mx-2">/</span>
-        <Link href={`/annonces?ville=${listing.city.slug}`} className="hover:text-ink">{listing.city.name}</Link>
+        <Link href={cityHref(listing.city.slug)} className="hover:text-ink">{listing.city.name}</Link>
       </nav>
 
       {listing.status !== "APPROVED" && (
@@ -108,7 +127,7 @@ async function ListingDetail({ params }: Pick<PageProps<"/annonces/[id]">, "para
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div>
                 <dt className="text-muted">Ville</dt>
-                <dd className="font-medium">{listing.city.name}{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</dd>
+                <dd className="font-medium"><Link href={cityHref(listing.city.slug)} className="hover:underline">{listing.city.name}</Link>{listing.neighborhood ? `, ${listing.neighborhood}` : ""}</dd>
               </div>
               <div>
                 <dt className="text-muted">Cherche</dt>
@@ -144,13 +163,13 @@ async function ListingDetail({ params }: Pick<PageProps<"/annonces/[id]">, "para
               <>
                 <h3 className="font-display text-lg font-semibold">Écrire à {a.displayName}</h3>
                 <p className="mt-1 text-sm text-muted">Connectez-vous pour envoyer un message privé.</p>
-                <Link href={`/connexion?suite=/annonces/${listing.id}`} className="btn btn-primary mt-4 w-full">Se connecter</Link>
+                <Link href={`/connexion?suite=${href}`} className="btn btn-primary mt-4 w-full">Se connecter</Link>
               </>
             ) : !me.profileComplete ? (
               <>
                 <h3 className="font-display text-lg font-semibold">Écrire à {a.displayName}</h3>
                 <p className="mt-1 text-sm text-muted">Complétez votre profil pour pouvoir écrire.</p>
-                <Link href={`/profil?suite=/annonces/${listing.id}`} className="btn btn-primary mt-4 w-full">Compléter mon profil</Link>
+                <Link href={`/profil?suite=${href}`} className="btn btn-primary mt-4 w-full">Compléter mon profil</Link>
               </>
             ) : (
               <ContactForm listingId={listing.id} name={a.displayName ?? "cette personne"} />
